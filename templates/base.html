@@ -84,7 +84,7 @@
 			    {% if tweet %}
 					<h3>latest tweet</h3>
 			        <div>
-						<p id="tweet">{{ tweet.text|urlize }}</p>
+						<p id="tweet">{{ tweet.text }}</p>
 						<p><span>Posted {{ tweet.date|naturalTimeDifference }} <span>//</span> <a href="http://twitter.com/joshontheweb" title="My twitter page">Follow me on twitter</a></span></p>
 			   		</div>
 				{% endif %}
