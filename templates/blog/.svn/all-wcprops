@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/something/!svn/ver/8/templates/blog
+END
+post_list.html
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/something/!svn/ver/8/templates/blog/post_list.html
+END
+post_detail.html
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/something/!svn/ver/8/templates/blog/post_detail.html
+END

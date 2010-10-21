@@ -1,0 +1,5 @@
+body { background: #e6e6e6; }
+
+p.coords span { display: block; }
+
+.mouse { position: absolute; background: url(images/cursor.png) center center no-repeat; width: 15px; height : 22px }

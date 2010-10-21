@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 31
+/something/!svn/ver/5/templates
+END
+portfolio.html
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/something/!svn/ver/2/templates/portfolio.html
+END
+._mission.html
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/something/!svn/ver/1/templates/._mission.html
+END
+._blog.html
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/something/!svn/ver/1/templates/._blog.html
+END
+._services.html
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/something/!svn/ver/1/templates/._services.html
+END
+mission.html
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/something/!svn/ver/3/templates/mission.html
+END
+services.html
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/something/!svn/ver/2/templates/services.html
+END
+._about.html
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/something/!svn/ver/1/templates/._about.html
+END
+._base.html
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/something/!svn/ver/1/templates/._base.html
+END
+._contact.html
+K 25
+svn:wc:ra_dav:version-url
+V 46
+/something/!svn/ver/1/templates/._contact.html
+END
+._portfolio.html
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/something/!svn/ver/1/templates/._portfolio.html
+END
+about.html
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/something/!svn/ver/1/templates/about.html
+END
+base.html
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/something/!svn/ver/8/templates/base.html
+END
+contact.html
+K 25
+svn:wc:ra_dav:version-url
+V 44
+/something/!svn/ver/1/templates/contact.html
+END
