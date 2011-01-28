@@ -16,7 +16,7 @@ $(function(){
 				move(data);
 			}
 			
-			writeCoords(data);
+            // writeCoords(data);
 
 		});
 		
@@ -60,12 +60,12 @@ $(function(){
 		}, 40)	
 	);
 
-	function writeCoords(data){
-		var string = JSON.stringify(data);
-		var $elem = $('p.coords');
-		$elem.append('<span>'+ string +'</span>');
-		if ($elem.children().length > 5){
-			$elem.find('span').first().remove();
-		}
-	}
+    // function writeCoords(data){
+    //  var string = JSON.stringify(data);
+    //  var $elem = $('p.coords');
+    //  $elem.append('<span>'+ string +'</span>');
+    //  if ($elem.children().length > 5){
+    //      $elem.find('span').first().remove();
+    //  }
+    // }
 });

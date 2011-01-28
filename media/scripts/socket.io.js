@@ -1,4 +1,4 @@
-/** Socket.IO 0.6 - Built with build.js */
+/** Socket.IO 0.6.1 - Built with build.js */
 /**
  * Socket.IO client
  * 
@@ -8,12 +8,12 @@
  */
 
 this.io = {
-	version: '0.6',
+	version: '0.6.1',
 
 	setPath: function(path){
 		if (window.console && console.error) console.error('io.setPath will be removed. Please set the variable WEB_SOCKET_SWF_LOCATION pointing to WebSocketMain.swf');
 		this.path = /\/$/.test(path) ? path : path + '/';
-		WEB_SOCKET_SWF_LOCATION = path + 'lib/vendor/web-socket-js/WebSocketMain.swf';
+    WEB_SOCKET_SWF_LOCATION = path + 'lib/vendor/web-socket-js/WebSocketMain.swf';
 	}
 };
 
@@ -21,8 +21,10 @@ if ('jQuery' in this) jQuery.io = this.io;
 
 if (typeof window != 'undefined'){
   // WEB_SOCKET_SWF_LOCATION = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//cdn.socket.io/' + this.io.version + '/WebSocketMain.swf';
-  WEB_SOCKET_SWF_LOCATION = '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf';
+  if (typeof WEB_SOCKET_SWF_LOCATION === 'undefined')
+    WEB_SOCKET_SWF_LOCATION = '/socket.io/lib/vendor/web-socket-js/WebSocketMain.swf';
 }
+
 /**
  * Socket.IO client
  * 
@@ -40,7 +42,7 @@ if (typeof window != 'undefined'){
 		ios: false,
 
 		load: function(fn){
-			if (document.readyState == 'complete' || _pageLoaded) return fn();
+			if (/loaded|complete/.test(document.readyState) || _pageLoaded) return fn();
 			if ('attachEvent' in window){
 				window.attachEvent('onload', fn);
 			} else {
@@ -64,7 +66,13 @@ if (typeof window != 'undefined'){
 
 		isArray: function(obj){
 			return Object.prototype.toString.call(obj) === '[object Array]';
-		}
+		},
+
+    merge: function(target, additional){
+      for (var i in additional)
+        if (additional.hasOwnProperty(i))
+          target[i] = additional[i];
+    }
 
 	};
 
@@ -77,6 +85,7 @@ if (typeof window != 'undefined'){
 	});
 
 })();
+
 /**
  * Socket.IO client
  * 
@@ -108,9 +117,7 @@ if (typeof window != 'undefined'){
 		this.options = {
 			timeout: 15000 // based on heartbeat interval default
 		};
-		for (var i in options) 
-			if (this.options.hasOwnProperty(i))
-				this.options[i] = options[i];
+		io.util.merge(this.options, options);
 	};
 
 	Transport.prototype.send = function(){
@@ -146,7 +153,7 @@ if (typeof window != 'undefined'){
 				if (data.substr(i, 1) == n){
 					number += n;
 				} else {	
-					data = data.substr(number.length + frame.length)
+					data = data.substr(number.length + frame.length);
 					number = Number(number);
 					break;
 				} 
@@ -304,23 +311,27 @@ if (typeof window != 'undefined'){
 			}
 		};
 		this._sendXhr.send('data=' + encodeURIComponent(data));
-	},
+	};
 
 	XHR.prototype.disconnect = function(){
 		// send disconnection signal
 		this._onDisconnect();
 		return this;
-	}
+	};
 
 	XHR.prototype._onDisconnect = function(){
 		if (this._xhr){
-			this._xhr.onreadystatechange = this._xhr.onload = empty;
-			this._xhr.abort();
+			this._xhr.onreadystatechange = empty;
+      try {
+        this._xhr.abort();
+      } catch(e){}
 			this._xhr = null;
 		}
 		if (this._sendXhr){
-			this._sendXhr.onreadystatechange = this._sendXhr.onload = empty;
-			this._sendXhr.abort();
+      this._sendXhr.onreadystatechange = empty;
+      try {
+        this._sendXhr.abort();
+      } catch(e){}
 			this._sendXhr = null;
 		}
 		this._sendBuffer = [];
@@ -351,6 +362,7 @@ if (typeof window != 'undefined'){
 	XHR.request = request;
 
 })();
+
 /**
  * Socket.IO client
  * 
@@ -374,16 +386,17 @@ if (typeof window != 'undefined'){
 		this.socket = new WebSocket(this._prepareUrl());
 		this.socket.onmessage = function(ev){ self._onData(ev.data); };
 		this.socket.onclose = function(ev){ self._onClose(); };
+    this.socket.onerror = function(e){ self._onError(e); };
 		return this;
 	};
 
 	WS.prototype.send = function(data){
-		this.socket.send(this._encode(data));
+		if (this.socket) this.socket.send(this._encode(data));
 		return this;
-	}
+	};
 
 	WS.prototype.disconnect = function(){
-		this.socket.close();
+		if (this.socket) this.socket.close();
 		return this;
 	};
 
@@ -391,6 +404,10 @@ if (typeof window != 'undefined'){
 		this._onDisconnect();
 		return this;
 	};
+
+  WS.prototype._onError = function(e){
+    this.base.emit('error', [e]);
+  };
 
 	WS.prototype._prepareUrl = function(){
 		return (this.base.options.secure ? 'wss' : 'ws') 
@@ -411,6 +428,7 @@ if (typeof window != 'undefined'){
 	};
 
 })();
+
 /**
  * Socket.IO client
  * 
@@ -443,17 +461,6 @@ if (typeof window != 'undefined'){
 			io.Transport.websocket.prototype.send.apply(self, args);
 		});
 		return this;
-	};
-
-	Flashsocket.prototype._onClose = function(){
-		if (!this.base.connected){
-			// something failed, we might be behind a proxy, so we'll try another transport
-			this.base.options.transports.splice(io.util.indexOf(this.base.options.transports, 'flashsocket'), 1);
-			this.base.transport = this.base.getTransport();
-			this.base.connect();
-			return;
-		}
-		return io.Transport.websocket.prototype._onClose.call(this);
 	};
 
 	Flashsocket.check = function(){
@@ -519,11 +526,13 @@ if (typeof window != 'undefined'){
 		script.parentNode.removeChild(script);
 	};
 
-	HTMLFile.prototype._destroy = function(){
-		this._iframe.src = 'about:blank';
-		this._doc = null;
-		CollectGarbage();
-	};
+  HTMLFile.prototype._destroy = function(){
+    if (this._iframe){
+      this._iframe.src = 'about:blank';
+      this._doc = null;
+      CollectGarbage();
+    }
+  };
 
 	HTMLFile.prototype.disconnect = function(){
 		this._destroy();
@@ -570,7 +579,7 @@ if (typeof window != 'undefined'){
 		this._xhr.onreadystatechange = function(){
 			if (self._xhr.readyState == 3) self._onData(self._xhr.responseText);
 		};
-		this._xhr.send();
+		this._xhr.send(null);
 	};
 
 	XHRMultipart.check = function(){
@@ -582,6 +591,7 @@ if (typeof window != 'undefined'){
 	};
 
 })();
+
 /**
  * Socket.IO client
  * 
@@ -618,27 +628,20 @@ if (typeof window != 'undefined'){
 	XHRPolling.prototype._get = function(){
 		var self = this;
 		this._xhr = this._request(+ new Date, 'GET');
-		if ('onload' in this._xhr){
-			this._xhr.onload = function(){
-				self._onData(this.responseText);
-				self._get();
-			};
-		} else {
-			this._xhr.onreadystatechange = function(){
-				var status;
-				if (self._xhr.readyState == 4){
-					self._xhr.onreadystatechange = empty;
-					try { status = self._xhr.status; } catch(e){}
-					if (status == 200){
-						self._onData(self._xhr.responseText);
-						self._get();
-					} else {
-						self._onDisconnect();
-					}
-				}
-			};
-		}
-		this._xhr.send();
+    this._xhr.onreadystatechange = function(){
+      var status;
+      if (self._xhr.readyState == 4){
+        self._xhr.onreadystatechange = empty;
+        try { status = self._xhr.status; } catch(e){}
+        if (status == 200){
+          self._onData(self._xhr.responseText);
+          self._get();
+        } else {
+          self._onDisconnect();
+        }
+      }
+    };
+		this._xhr.send(null);
 	};
 
 	XHRPolling.check = function(){
@@ -650,6 +653,7 @@ if (typeof window != 'undefined'){
 	};
 
 })();
+
 /**
  * Socket.IO client
  * 
@@ -796,9 +800,7 @@ JSONPPolling.xdomainCheck = function(){
 			tryTransportsOnConnectTimeout: true,
 			rememberTransport: true
 		};
-		for (var i in options) 
-			if (this.options.hasOwnProperty(i))
-				this.options[i] = options[i];
+		io.util.merge(this.options, options);
 		this.connected = false;
 		this.connecting = false;
 		this._events = {};
@@ -829,24 +831,26 @@ JSONPPolling.xdomainCheck = function(){
 		if (this.transport && !this.connected){
 			if (this.connecting) this.disconnect();
 			this.connecting = true;
+			this.emit('connecting', [this.transport.type]);
 			this.transport.connect();
 			if (this.options.connectTimeout){
 				var self = this;
-				setTimeout(function(){
+				this.connectTimeoutTimer = setTimeout(function(){
 					if (!self.connected){
 						self.disconnect();
 						if (self.options.tryTransportsOnConnectTimeout && !self._rememberedTransport){
-							var remainingTransports = [], transports = self.options.transports;
-							for (var i = 0, transport; transport = transports[i]; i++){
-								if (transport != self.transport.type) remainingTransports.push(transport);
-							}
-							if (remainingTransports.length){
-								self.transport = self.getTransport(remainingTransports);
+							if(!self._remainingTransports) self._remainingTransports = self.options.transports.slice(0);
+							var transports = self._remainingTransports;
+							while(transports.length > 0 && transports.splice(0,1)[0] != self.transport.type){}
+							if(transports.length){
+								self.transport = self.getTransport(transports);
 								self.connect();
 							}
 						}
+						if(!self._remainingTransports || self._remainingTransports.length == 0) self.emit('connect_failed');
 					}
-				}, this.options.connectTimeout)
+					if(self._remainingTransports && self._remainingTransports.length == 0) delete self._remainingTransports;
+				}, this.options.connectTimeout);
 			}
 		}
 		return this;
@@ -859,6 +863,7 @@ JSONPPolling.xdomainCheck = function(){
 	};
 
 	Socket.prototype.disconnect = function(){
+    if (this.connectTimeoutTimer) clearTimeout(this.connectTimeoutTimer);
 		this.transport.disconnect();
 		return this;
 	};
@@ -869,13 +874,14 @@ JSONPPolling.xdomainCheck = function(){
 		return this;
 	};
 
-	Socket.prototype.fire = function(name, args){
-		if (name in this._events){
-			for (var i = 0, ii = this._events[name].length; i < ii; i++) 
-				this._events[name][i].apply(this, args === undefined ? [] : args);
-		}
-		return this;
-	};
+  Socket.prototype.emit = function(name, args){
+    if (name in this._events){
+      var events = this._events[name].concat();
+      for (var i = 0, ii = events.length; i < ii; i++)
+        events[i].apply(this, args === undefined ? [] : args);
+    }
+    return this;
+  };
 
 	Socket.prototype.removeEvent = function(name, fn){
 		if (name in this._events){
@@ -907,11 +913,11 @@ JSONPPolling.xdomainCheck = function(){
 		this.connecting = false;
 		this._doQueue();
 		if (this.options.rememberTransport) this.options.document.cookie = 'socketio=' + encodeURIComponent(this.transport.type);
-		this.fire('connect');
+		this.emit('connect');
 	};
 
 	Socket.prototype._onMessage = function(data){
-		this.fire('message', [data]);
+		this.emit('message', [data]);
 	};
 
 	Socket.prototype._onDisconnect = function(){
@@ -919,12 +925,15 @@ JSONPPolling.xdomainCheck = function(){
 		this.connected = false;
 		this.connecting = false;
 		this._queueStack = [];
-		if (wasConnected) this.fire('disconnect');
+		if (wasConnected) this.emit('disconnect');
 	};
+
+  Socket.prototype.fire = Socket.prototype.emit;
 
 	Socket.prototype.addListener = Socket.prototype.addEvent = Socket.prototype.addEventListener = Socket.prototype.on;
 
 })();
+
 /*	SWFObject v2.2 <http://code.google.com/p/swfobject/> 
 	is released under the MIT License <http://www.opensource.org/licenses/mit-license.php> 
 */
