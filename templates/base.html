@@ -48,7 +48,7 @@
 			<div id="banner" class="grid_10">
 				{% block banner %}
 						<div class="splash">
-							<img src="{{ latest_post.image.extra_thumbnails.banner }}" alt="{{ latest_post.title }}" height="{{ latest_post.image.extra_thumbnails.banner.height }}" width="{{ latest_post.image.extra_thumbnails.banner.width }}">
+							<img src="{{ latest_post.image.extra_thumbnails.banner|default:'/images/ledzeppelin_iv.jpg' }}" alt="{{ latest_post.title }}" height="{{ latest_post.image.extra_thumbnails.banner.height }}" width="{{ latest_post.image.extra_thumbnails.banner.width }}">
 							<span class="teaser"><a href="{{ latest_post.get_absolute_url }}" title="have a look at my latest article">{{ latest_post.title }}</a></span>
 						</div>
 				{% endblock banner %}
@@ -59,7 +59,7 @@
 					{% endblock h1 %}
 				</h1>
 				<div id="body">
-				    <p class="coords"></p>
+                    <!-- <p class="coords"></p> -->
 					{% block content %}
 					{% endblock content %}
 				</div>

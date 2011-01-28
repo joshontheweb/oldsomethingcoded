@@ -14,11 +14,12 @@ var app = jimi.run({
 
 var io = require('socket.io');
 var socket = io.listen(app);
-log('\n\nTesting...\n\n');
+// log('\n\nTesting...\n\n');
 socket.on('connection', function(client){
 	log('\n\nClient Connected\n\n');
+    log('id: '+client.sessionId);
 	client.on('message', function(message){
-		log('\n\n Message Recieved\n\n'+ message);
+        // log('\n\n Message Recieved\n\n'+ message);
 		
 		try {
 			message = JSON.parse(message);
@@ -33,13 +34,13 @@ socket.on('connection', function(client){
 			return false;
 		}
 		
-		log('id: '+client.sessionId);
 		message.id = client.sessionId;
 		client.broadcast(json(message));
-		client.send(json(message));
+        // client.send(json(message));
 	});
 
 	client.on('disconnect', function(){
 		log('\n\n Disconnected \n\n');
+        log('id: '+client.sessionId);
 	});
 });
